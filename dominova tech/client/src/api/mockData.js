@@ -289,7 +289,18 @@ function saveDb(db) {
 export function handleMockRequest(path, options = {}) {
   const db = loadDb();
   const method = (options.method || 'GET').toUpperCase();
-  const body = options.body ? JSON.parse(options.body) : {};
+  let body = {};
+  if (options.body) {
+    if (typeof options.body === 'string') {
+      try {
+        body = JSON.parse(options.body);
+      } catch (e) {
+        body = {};
+      }
+    } else {
+      body = options.body;
+    }
+  }
   const token = localStorage.getItem('dom_token');
   let currentUserId = 1;
 

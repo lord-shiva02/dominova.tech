@@ -21,9 +21,16 @@ async function request(path, options = {}) {
       body: options.body ? JSON.stringify(options.body) : undefined,
     });
 
-    // If endpoint is missing or method not allowed (e.g. static Vercel host without live backend), fallback to mock data engine
+    // If static Vercel host returns 404, 405, or server error, fallback to mock data engine
     if (res.status === 404 || res.status === 405 || res.status >= 502) {
       console.warn(`[Dominova] API responded with ${res.status} on ${path}. Falling back to client-side data engine.`);
+      return handleMockRequest(path, options);
+    }
+
+    // If response is not JSON (e.g. Vercel redirected POST to static index.html)
+    const contentType = res.headers.get('content-type') || '';
+    if (!contentType.includes('application/json')) {
+      console.warn(`[Dominova] API returned non-JSON (${contentType}) on ${path}. Falling back to client-side data engine.`);
       return handleMockRequest(path, options);
     }
 
@@ -33,9 +40,9 @@ async function request(path, options = {}) {
     }
     return data;
   } catch (err) {
-    // If backend server is unreachable (offline/CORS/network failure), fallback to client-side data engine
-    if (!err.message || !err.message.startsWith('Request failed:')) {
-      console.warn(`[Dominova] Network error calling ${path} (${err.message}). Using client-side data engine.`);
+    // If network error (offline, backend not running, CORS)
+    if (!err.message || (!err.message.startsWith('Request failed:') && !err.message.includes('Invalid') && !err.message.includes('required'))) {
+      console.warn(`[Dominova] Network error on ${path} (${err.message}). Using client-side data engine.`);
       return handleMockRequest(path, options);
     }
     throw err;
