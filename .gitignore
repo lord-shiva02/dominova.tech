@@ -1,0 +1,12 @@
+node_modules/
+dist/
+.vercel/
+.env
+.env.local
+.DS_Store
+Thumbs.db
+
+# SQLite WAL and journal files
+*.db-shm
+*.db-wal
+*.db-journal

@@ -1,0 +1,11 @@
+{
+  "name": "dominova-workspace",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "cd \"dominova tech\" && npm run dev",
+    "build": "cd \"dominova tech\" && npm run build",
+    "server": "cd \"dominova tech\" && npm run server",
+    "client": "cd \"dominova tech\" && npm run client"
+  }
+}
