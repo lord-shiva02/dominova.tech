@@ -1,22 +1,23 @@
-// ============================================================
-// DOMINOVA OS - MOCK BACKEND FOR SERVERLESS & VERCEL DEMO
-// Automatically activates if the backend API is unreachable or returns 404
-// ============================================================
+// Complete in-memory/localStorage mock data engine for Dominova OS
+// Enables instant preview and full interactivity on static hosts (like Vercel)
+// when no live backend server is connected.
 
-const USERS_SEED = [
-  { id: 1, name: 'Founder Admin', email: 'admin@dominova.in', role: 'admin', phone: '9000000001', password: 'Admin@123' },
-  { id: 2, name: 'Rahul Sharma', email: 'sales1@dominova.in', role: 'sales', phone: '9000000002', password: 'Sales@123' },
-  { id: 3, name: 'Priya Patel', email: 'sales2@dominova.in', role: 'sales', phone: '9000000003', password: 'Sales@123' },
-  { id: 4, name: 'Arjun Singh', email: 'sales3@dominova.in', role: 'sales', phone: '9000000004', password: 'Sales@123' },
-  { id: 5, name: 'Meera Nair', email: 'manager@dominova.in', role: 'manager', phone: '9000000005', password: 'Manager@123' },
-  { id: 6, name: 'Vikram Dev', email: 'dev1@dominova.in', role: 'developer', phone: '9000000006', password: 'Dev@123' },
-  { id: 7, name: 'Sneha Reddy', email: 'dev2@dominova.in', role: 'developer', phone: '9000000007', password: 'Dev@123' },
-  { id: 8, name: 'Kiran Kumar', email: 'dev3@dominova.in', role: 'developer', phone: '9000000008', password: 'Dev@123' },
-  { id: 9, name: 'Aditya Verma', email: 'dev4@dominova.in', role: 'developer', phone: '9000000009', password: 'Dev@123' },
-  { id: 10, name: 'Deepika Joshi', email: 'dev5@dominova.in', role: 'developer', phone: '9000000010', password: 'Dev@123' },
+const STORAGE_KEY = 'dominova_mock_db_v1';
+
+const INITIAL_USERS = [
+  { id: 1, name: 'Founder Admin', email: 'admin@dominova.in', role: 'admin', phone: '9000000001', is_active: 1, created_at: '2026-09-01T00:00:00.000Z' },
+  { id: 2, name: 'Rahul Sharma', email: 'sales1@dominova.in', role: 'sales', phone: '9000000002', is_active: 1, created_at: '2026-09-01T00:00:00.000Z' },
+  { id: 3, name: 'Priya Patel', email: 'sales2@dominova.in', role: 'sales', phone: '9000000003', is_active: 1, created_at: '2026-09-01T00:00:00.000Z' },
+  { id: 4, name: 'Arjun Singh', email: 'sales3@dominova.in', role: 'sales', phone: '9000000004', is_active: 1, created_at: '2026-09-01T00:00:00.000Z' },
+  { id: 5, name: 'Meera Nair', email: 'manager@dominova.in', role: 'manager', phone: '9000000005', is_active: 1, created_at: '2026-09-01T00:00:00.000Z' },
+  { id: 6, name: 'Vikram Dev', email: 'dev1@dominova.in', role: 'developer', phone: '9000000006', is_active: 1, created_at: '2026-09-01T00:00:00.000Z' },
+  { id: 7, name: 'Sneha Reddy', email: 'dev2@dominova.in', role: 'developer', phone: '9000000007', is_active: 1, created_at: '2026-09-01T00:00:00.000Z' },
+  { id: 8, name: 'Kiran Kumar', email: 'dev3@dominova.in', role: 'developer', phone: '9000000008', is_active: 1, created_at: '2026-09-01T00:00:00.000Z' },
+  { id: 9, name: 'Aditya Verma', email: 'dev4@dominova.in', role: 'developer', phone: '9000000009', is_active: 1, created_at: '2026-09-01T00:00:00.000Z' },
+  { id: 10, name: 'Deepika Joshi', email: 'dev5@dominova.in', role: 'developer', phone: '9000000010', is_active: 1, created_at: '2026-09-01T00:00:00.000Z' },
 ];
 
-const LEADS_SEED = [
+const INITIAL_LEADS = [
   {
     id: 1,
     lead_id: 'DOM-LEAD-0001',
@@ -30,9 +31,10 @@ const LEADS_SEED = [
     assigned_to: null,
     status: 'NEW',
     notes: 'Interested in a restaurant website',
-    requirements: 'Online menu and ordering system',
+    requirements: 'Menu display, ordering, delivery links',
     quoted_amount: 25000,
-    created_at: new Date(Date.now() - 3600000 * 24 * 3).toISOString(),
+    created_by: 1,
+    created_at: '2026-09-09T10:00:00.000Z'
   },
   {
     id: 2,
@@ -45,11 +47,13 @@ const LEADS_SEED = [
     instagram_url: 'https://instagram.com/mehtaboutique',
     lead_source: 'Google',
     assigned_to: 2,
+    assigned_to_name: 'Rahul Sharma',
     status: 'ASSIGNED',
     notes: 'Fashion boutique, wants e-commerce site',
-    requirements: 'Product catalog with payment gateway',
+    requirements: 'Catalog, online cart, WhatsApp order button',
     quoted_amount: 30000,
-    created_at: new Date(Date.now() - 3600000 * 24 * 5).toISOString(),
+    created_by: 1,
+    created_at: '2026-09-08T11:00:00.000Z'
   },
   {
     id: 3,
@@ -61,12 +65,15 @@ const LEADS_SEED = [
     google_business_url: 'https://g.co/pillaiestates',
     lead_source: 'Referral',
     assigned_to: 2,
+    assigned_to_name: 'Rahul Sharma',
     status: 'FOLLOW_UP',
-    notes: 'Called on 5th Sep. Client interested but wants to discuss after Diwali.',
+    notes: 'Called on 5th Sep. Client interested but wants to discuss after festival.',
     requirements: 'Property listing website with search filters and contact forms',
     quoted_amount: 35000,
-    next_followup_date: new Date().toISOString().split('T')[0],
-    created_at: new Date(Date.now() - 3600000 * 24 * 7).toISOString(),
+    next_followup_date: '2026-10-25',
+    last_contacted_at: '2026-09-05T00:00:00.000Z',
+    created_by: 1,
+    created_at: '2026-09-05T09:30:00.000Z'
   },
   {
     id: 4,
@@ -78,11 +85,14 @@ const LEADS_SEED = [
     instagram_url: 'https://instagram.com/kavithabeauty',
     lead_source: 'Instagram',
     assigned_to: 3,
+    assigned_to_name: 'Priya Patel',
     status: 'INTERESTED',
     notes: 'Very interested. Wants booking system integrated.',
     requirements: 'Salon booking website with appointment calendar',
     quoted_amount: 25000,
-    created_at: new Date(Date.now() - 3600000 * 24 * 2).toISOString(),
+    last_contacted_at: '2026-09-08T00:00:00.000Z',
+    created_by: 1,
+    created_at: '2026-09-06T14:00:00.000Z'
   },
   {
     id: 5,
@@ -94,11 +104,14 @@ const LEADS_SEED = [
     google_business_url: 'https://g.co/agarwalmotors',
     lead_source: 'Google',
     assigned_to: 3,
+    assigned_to_name: 'Priya Patel',
     status: 'MANAGER_REVIEW',
-    notes: 'High value client. Needs founder/manager to negotiate price.',
+    notes: 'High value client. Needs founder/manager to speak with.',
     requirements: 'Car dealership website with inventory management',
     quoted_amount: 85000,
-    created_at: new Date(Date.now() - 3600000 * 24 * 4).toISOString(),
+    last_contacted_at: '2026-09-07T00:00:00.000Z',
+    created_by: 1,
+    created_at: '2026-09-07T12:00:00.000Z'
   },
   {
     id: 6,
@@ -111,168 +124,189 @@ const LEADS_SEED = [
     instagram_url: 'https://instagram.com/iyercatering',
     lead_source: 'Referral',
     assigned_to: 2,
+    assigned_to_name: 'Rahul Sharma',
     status: 'CONVERTED',
-    requirements: 'Full catering website with menu showcase and gallery',
+    requirements: 'Catering website with menu, gallery, and contact',
     quoted_amount: 20000,
     advance_amount: 8000,
     full_project_amount: 20000,
-    created_at: new Date(Date.now() - 3600000 * 24 * 10).toISOString(),
+    last_contacted_at: '2026-09-01T00:00:00.000Z',
+    created_by: 1,
+    created_at: '2026-09-01T10:00:00.000Z'
   }
 ];
 
-const PROJECTS_SEED = [
+const INITIAL_PROJECTS = [
   {
     id: 1,
     project_id: 'DOM-PROJ-0001',
     lead_id: 6,
     salesperson_id: 2,
+    salesperson_name: 'Rahul Sharma',
     developer_id: null,
+    developer_name: null,
     client_name: 'Pooja Iyer',
     org_name: 'Iyer Catering',
     phone: '9876543215',
     email: 'pooja@iyercatering.com',
-    requirements: 'Full catering website with menu showcase, gallery, testimonials, and contact form',
-    specifications: 'Mobile-first design, fast loading, SEO optimized',
-    website_expectations: 'Professional, warm colors (orange/gold theme)',
+    requirements: 'Full catering website with menu showcase, gallery, testimonials, contact form and WhatsApp integration',
+    specifications: 'Mobile-first design, fast loading, SEO optimized, CMS for menu updates',
+    website_expectations: 'Professional, warm colors (orange/gold theme), easy to navigate',
     full_project_amount: 20000,
     advance_amount: 8000,
     developer_payout: 6000,
     status: 'PENDING_ADMIN_APPROVAL',
     payment_status: 'PARTIAL',
-    created_at: new Date(Date.now() - 3600000 * 24 * 8).toISOString(),
+    salesperson_notes: 'Client very happy with our portfolio. Advance paid via UPI. Wants delivery in 3 weeks.',
+    created_at: '2026-09-02T10:00:00.000Z'
   },
   {
     id: 2,
     project_id: 'DOM-PROJ-0002',
     salesperson_id: 3,
+    salesperson_name: 'Priya Patel',
     developer_id: null,
+    developer_name: null,
     client_name: 'Akhil Stores',
     org_name: 'Akhil General Stores',
     phone: '9876543220',
     email: 'akhil@stores.com',
-    requirements: 'E-commerce website for grocery store with cart and payment gateway',
-    specifications: 'Fast catalog loading, Razorpay integration, UPI and card',
-    website_expectations: 'Clean, modern grocery store theme',
+    requirements: 'E-commerce website for grocery store with cart, payment gateway and delivery tracking',
+    specifications: 'WooCommerce style, Razorpay integration, UPI and card payment, WhatsApp order confirmation',
+    website_expectations: 'Clean, modern grocery store theme. Must work perfectly on mobile.',
     full_project_amount: 30000,
     advance_amount: 15000,
     developer_payout: 9000,
     status: 'AVAILABLE_FOR_DEVELOPER',
     payment_status: 'PARTIAL',
-    created_at: new Date(Date.now() - 3600000 * 24 * 6).toISOString(),
+    salesperson_notes: 'High-priority. Client wants launch before next month.',
+    created_at: '2026-09-03T11:00:00.000Z'
   },
   {
     id: 3,
     project_id: 'DOM-PROJ-0003',
     salesperson_id: 2,
+    salesperson_name: 'Rahul Sharma',
     developer_id: 6,
+    developer_name: 'Vikram Dev',
     client_name: 'TechStart Solutions',
     org_name: 'TechStart Solutions Pvt Ltd',
     phone: '9876543221',
     email: 'info@techstart.in',
     requirements: 'Corporate website with team page, services, portfolio, blog and contact form',
-    specifications: 'React-based, fast loading, dark/light mode',
-    website_expectations: 'Premium tech startup look with neon accents',
+    specifications: 'React-based, fast loading, dark/light mode, AOS animations',
+    website_expectations: 'Premium tech startup look. Dark theme with neon accents.',
     full_project_amount: 25000,
     advance_amount: 12500,
     developer_payout: 7500,
     status: 'IN_DEVELOPMENT',
     payment_status: 'PARTIAL',
-    created_at: new Date(Date.now() - 3600000 * 24 * 4).toISOString(),
+    salesperson_notes: 'Tech-savvy client. Gave very detailed requirements.',
+    created_at: '2026-09-04T12:00:00.000Z'
   },
   {
     id: 4,
     project_id: 'DOM-PROJ-0004',
     salesperson_id: 4,
+    salesperson_name: 'Arjun Singh',
     developer_id: 7,
+    developer_name: 'Sneha Reddy',
     client_name: 'Nisha Fashion House',
     org_name: 'Nisha Fashion',
     phone: '9876543222',
     email: 'nisha@fashionhouse.com',
-    requirements: 'Fashion e-commerce with size guide, lookbook, and checkout',
-    specifications: 'Elegant feminine design, Instagram feed integration',
-    website_expectations: 'Luxury fashion website feel',
+    requirements: 'Fashion e-commerce with size guide, lookbook, wishlist and checkout',
+    specifications: 'Elegant feminine design, Instagram feed integration, fast image loading',
+    website_expectations: 'Luxury fashion website feel. Pink and gold theme.',
     full_project_amount: 35000,
     advance_amount: 20000,
     developer_payout: 10000,
     final_website_url: 'https://nisha-fashion-demo.netlify.app',
     status: 'PENDING_FINAL_APPROVAL',
     payment_status: 'PARTIAL',
-    created_at: new Date(Date.now() - 3600000 * 24 * 2).toISOString(),
+    salesperson_notes: 'Premium client, very specific about design.',
+    created_at: '2026-09-05T13:00:00.000Z'
   }
 ];
 
-const ESCALATIONS_SEED = [
-  {
-    id: 1,
-    lead_id: 5,
-    salesperson_id: 3,
-    manager_id: 5,
-    quoted_price: 85000,
-    requirements: 'Car dealership website with inventory management',
-    reason: 'Client wants 30% discount or custom ERP integration',
-    salesperson_notes: 'Client is keen but stuck on commercial terms. Needs manager approval.',
-    status: 'PENDING_MANAGER',
-    created_at: new Date(Date.now() - 3600000 * 24 * 2).toISOString(),
-    client_name: 'Harish Agarwal',
-    org_name: 'Agarwal Motors',
-    phone: '9876543214',
-    salesperson_name: 'Priya Patel',
-  }
-];
+const INITIAL_WALLETS = {
+  1: { id: 1, user_id: 1, available_balance: 45000, total_earned: 95000, total_withdrawn: 50000, pending_withdrawal: 0 },
+  2: { id: 2, user_id: 2, available_balance: 14000, total_earned: 24000, total_withdrawn: 10000, pending_withdrawal: 0 },
+  3: { id: 3, user_id: 3, available_balance: 11500, total_earned: 19500, total_withdrawn: 8000, pending_withdrawal: 0 },
+  4: { id: 4, user_id: 4, available_balance: 8500, total_earned: 12500, total_withdrawn: 4000, pending_withdrawal: 0 },
+  5: { id: 5, user_id: 5, available_balance: 18000, total_earned: 38000, total_withdrawn: 20000, pending_withdrawal: 0 },
+  6: { id: 6, user_id: 6, available_balance: 15000, total_earned: 35000, total_withdrawn: 20000, pending_withdrawal: 0 },
+  7: { id: 7, user_id: 7, available_balance: 12000, total_earned: 22000, total_withdrawn: 10000, pending_withdrawal: 0 },
+  8: { id: 8, user_id: 8, available_balance: 9000, total_earned: 15000, total_withdrawn: 6000, pending_withdrawal: 0 },
+  9: { id: 9, user_id: 9, available_balance: 7500, total_earned: 12500, total_withdrawn: 5000, pending_withdrawal: 0 },
+  10: { id: 10, user_id: 10, available_balance: 6000, total_earned: 10000, total_withdrawn: 4000, pending_withdrawal: 0 },
+};
 
-const NOTIFICATIONS_SEED = [
-  { id: 1, user_id: 1, title: 'Welcome to Dominova OS', message: 'System running with full offline & cloud capabilities', is_read: 0, created_at: new Date().toISOString() },
-  { id: 2, user_id: 1, title: 'New Project Pending Approval', message: 'Project DOM-PROJ-0001 is awaiting admin review', is_read: 0, created_at: new Date(Date.now() - 3600000).toISOString() },
-  { id: 3, user_id: 2, title: 'Lead Assigned', message: 'Anita Mehta (Mehta Boutique) has been assigned to you', is_read: 1, created_at: new Date(Date.now() - 7200000).toISOString() },
-];
-
-function getStore(key, seed) {
+function loadDb() {
   try {
-    const raw = localStorage.getItem(`dom_mock_${key}`);
+    const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) return JSON.parse(raw);
   } catch (e) {}
-  localStorage.setItem(`dom_mock_${key}`, JSON.stringify(seed));
-  return seed;
+
+  const db = {
+    users: INITIAL_USERS,
+    leads: INITIAL_LEADS,
+    projects: INITIAL_PROJECTS,
+    wallets: INITIAL_WALLETS,
+    escalations: [
+      {
+        id: 1,
+        lead_id: 5,
+        lead: INITIAL_LEADS[4],
+        salesperson_id: 3,
+        salesperson_name: 'Priya Patel',
+        manager_id: 5,
+        manager_name: 'Meera Nair',
+        quoted_price: 85000,
+        requirements: 'Car dealership website with full inventory management system',
+        reason: 'High-value client. Price negotiation needed.',
+        status: 'PENDING_MANAGER',
+        created_at: '2026-09-07T12:00:00.000Z'
+      }
+    ],
+    notifications: [
+      { id: 1, user_id: 1, title: 'New Project Submitted', message: 'Project DOM-PROJ-0004 is waiting for your final review', is_read: 0, created_at: new Date().toISOString() },
+      { id: 2, user_id: 1, title: 'Manager Escalation', message: 'Lead DOM-LEAD-0005 has been escalated for senior review', is_read: 0, created_at: new Date().toISOString() },
+      { id: 3, user_id: 2, title: 'Follow-up Reminder', message: 'Upcoming follow-up for Ramesh Pillai', is_read: 0, created_at: new Date().toISOString() }
+    ],
+    messages: {}
+  };
+  saveDb(db);
+  return db;
 }
 
-function setStore(key, data) {
+function saveDb(db) {
   try {
-    localStorage.setItem(`dom_mock_${key}`, JSON.stringify(data));
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
   } catch (e) {}
 }
 
-export async function handleMockRequest(path, options = {}) {
+export function handleMockRequest(path, options = {}) {
+  const db = loadDb();
   const method = (options.method || 'GET').toUpperCase();
-  const body = options.body || {};
-  const currentToken = localStorage.getItem('dom_token');
-  
-  let currentUser = null;
-  if (currentToken) {
-    try {
-      const stored = localStorage.getItem('dom_current_user');
-      if (stored) currentUser = JSON.parse(stored);
-    } catch (e) {}
-  }
-  if (!currentUser) {
-    currentUser = USERS_SEED[0]; // default admin for mock
-  }
+  const body = options.body ? JSON.parse(options.body) : {};
+  const token = localStorage.getItem('dom_token');
+  let currentUserId = 1;
 
-  // --- AUTH ROUTES ---
+  if (token && token.startsWith('mock_token_')) {
+    currentUserId = parseInt(token.replace('mock_token_', ''), 10) || 1;
+  }
+  const currentUser = db.users.find(u => u.id === currentUserId) || db.users[0];
+
+  // AUTH
   if (path === '/auth/login' && method === 'POST') {
-    const { email, password } = body;
-    const user = USERS_SEED.find(u => u.email.toLowerCase() === (email || '').toLowerCase().trim());
-    if (!user || user.password !== password) {
-      // Also allow common demo passwords
-      if (user && (password === 'Admin@123' || password === 'Sales@123' || password === 'Manager@123' || password === 'Dev@123')) {
-        // match
-      } else {
-        throw new Error('Invalid email or password');
-      }
+    const email = (body.email || '').toLowerCase().trim();
+    const user = db.users.find(u => u.email.toLowerCase() === email);
+    if (!user) {
+      throw new Error('Invalid email or password');
     }
-    const token = `mock-token-${user.role}-${Date.now()}`;
-    const safeUser = { id: user.id, name: user.name, email: user.email, role: user.role, phone: user.phone };
-    localStorage.setItem('dom_current_user', JSON.stringify(safeUser));
-    return { token, user: safeUser };
+    const token = `mock_token_${user.id}`;
+    return { token, user };
   }
 
   if (path === '/auth/me') {
@@ -280,193 +314,257 @@ export async function handleMockRequest(path, options = {}) {
   }
 
   if (path === '/auth/logout') {
-    localStorage.removeItem('dom_current_user');
-    return { message: 'Logged out' };
+    return { success: true };
   }
 
-  if (path === '/auth/change-password') {
-    return { message: 'Password changed successfully' };
+  // NOTIFICATIONS
+  if (path === '/notifications/count') {
+    const unread = db.notifications.filter(n => (n.user_id === currentUser.id || n.user_id === 1) && !n.is_read).length;
+    return { unreadCount: unread };
   }
 
-  // --- USERS ---
-  if (path.startsWith('/users/by-role/sales')) {
-    return { users: USERS_SEED.filter(u => u.role === 'sales') };
-  }
-  if (path.startsWith('/users/by-role/developers')) {
-    return { users: USERS_SEED.filter(u => u.role === 'developer') };
-  }
-  if (path.startsWith('/users')) {
-    return { users: USERS_SEED.map(u => ({ id: u.id, name: u.name, email: u.email, role: u.role, phone: u.phone })) };
+  if (path.startsWith('/notifications')) {
+    if (path.includes('/read') && method === 'PUT') {
+      const notifId = parseInt(path.split('/')[2]);
+      const n = db.notifications.find(x => x.id === notifId);
+      if (n) n.is_read = 1;
+      saveDb(db);
+      return { success: true };
+    }
+    if (path.includes('/mark-all-read') && method === 'PUT') {
+      db.notifications.forEach(n => { n.is_read = 1; });
+      saveDb(db);
+      return { success: true };
+    }
+    return db.notifications.filter(n => n.user_id === currentUser.id || currentUser.role === 'admin');
   }
 
-  // --- LEADS ---
+  // REPORTS OVERVIEW
+  if (path === '/reports/overview') {
+    const leads = {
+      total: db.leads.length,
+      new: db.leads.filter(l => l.status === 'NEW').length,
+      follow_up: db.leads.filter(l => l.status === 'FOLLOW_UP').length,
+      manager_review: db.leads.filter(l => l.status === 'MANAGER_REVIEW').length,
+      converted: db.leads.filter(l => l.status === 'CONVERTED').length,
+      lost: db.leads.filter(l => l.status === 'LOST').length,
+      followups_due_today: 1,
+      followups_overdue: 0,
+    };
+
+    const projects = {
+      pending_admin_approval: db.projects.filter(p => p.status === 'PENDING_ADMIN_APPROVAL').length,
+      available_for_developer: db.projects.filter(p => p.status === 'AVAILABLE_FOR_DEVELOPER').length,
+      in_development: db.projects.filter(p => ['ASSIGNED','IN_DEVELOPMENT','TESTING'].includes(p.status)).length,
+      pending_final_approval: db.projects.filter(p => p.status === 'PENDING_FINAL_APPROVAL').length,
+      revision_required: db.projects.filter(p => p.status === 'REVISION_REQUIRED').length,
+      completed: db.projects.filter(p => p.status === 'COMPLETED').length,
+      total: db.projects.length,
+    };
+
+    const finance = {
+      total_project_value: db.projects.reduce((sum, p) => sum + (p.full_project_amount || 0), 0),
+      total_advance: db.projects.reduce((sum, p) => sum + (p.advance_amount || 0), 0),
+      total_developer_payouts: 32500,
+      total_sales_commissions: 18000,
+      total_wallets_balance: Object.values(db.wallets).reduce((s, w) => s + (w.available_balance || 0), 0),
+      pending_withdrawals: 0,
+      pending_withdrawal_amount: 0,
+    };
+
+    const salesByPerson = db.users.filter(u => u.role === 'sales').map(u => ({
+      id: u.id,
+      name: u.name,
+      active_leads: db.leads.filter(l => l.assigned_to === u.id && l.status !== 'LOST').length,
+      conversions: db.leads.filter(l => l.assigned_to === u.id && l.status === 'CONVERTED').length,
+      lost: db.leads.filter(l => l.assigned_to === u.id && l.status === 'LOST').length,
+      follow_ups: db.leads.filter(l => l.assigned_to === u.id && l.status === 'FOLLOW_UP').length,
+      escalations: db.leads.filter(l => l.assigned_to === u.id && l.status === 'MANAGER_REVIEW').length,
+      revenue_generated: db.leads.filter(l => l.assigned_to === u.id && l.status === 'CONVERTED').reduce((s, l) => s + (l.full_project_amount || 0), 0)
+    }));
+
+    const developerStats = db.users.filter(u => u.role === 'developer').map(u => {
+      const activeProj = db.projects.find(p => p.developer_id === u.id && ['ASSIGNED','IN_DEVELOPMENT','TESTING'].includes(p.status));
+      return {
+        id: u.id,
+        name: u.name,
+        is_available: activeProj ? 0 : 1,
+        active_project: activeProj ? activeProj.project_id : null,
+        active_project_id: activeProj ? activeProj.id : null,
+        completed_projects: 3,
+        total_earned: 24000
+      };
+    });
+
+    return { leads, projects, finance, salesByPerson, developerStats };
+  }
+
+  // LEADS
   if (path.startsWith('/leads/stats')) {
-    const leads = getStore('leads', LEADS_SEED);
     return {
       stats: {
-        total: leads.length,
-        new: leads.filter(l => l.status === 'NEW').length,
-        assigned: leads.filter(l => l.status === 'ASSIGNED').length,
-        contacted: leads.filter(l => l.status === 'CONTACTED').length,
-        interested: leads.filter(l => l.status === 'INTERESTED').length,
-        follow_up: leads.filter(l => l.status === 'FOLLOW_UP').length,
-        manager_review: leads.filter(l => l.status === 'MANAGER_REVIEW').length,
-        converted: leads.filter(l => l.status === 'CONVERTED').length,
-        lost: leads.filter(l => l.status === 'LOST').length,
+        total: db.leads.length,
+        new: db.leads.filter(l => l.status === 'NEW').length,
+        assigned: db.leads.filter(l => l.status === 'ASSIGNED').length,
+        contacted: db.leads.filter(l => l.status === 'CONTACTED').length,
+        interested: db.leads.filter(l => l.status === 'INTERESTED').length,
+        follow_up: db.leads.filter(l => l.status === 'FOLLOW_UP').length,
+        manager_review: db.leads.filter(l => l.status === 'MANAGER_REVIEW').length,
+        converted: db.leads.filter(l => l.status === 'CONVERTED').length,
+        lost: db.leads.filter(l => l.status === 'LOST').length,
         followups_due_today: 1,
       }
     };
   }
 
-  if (path.startsWith('/leads') && method === 'GET') {
-    let leads = getStore('leads', LEADS_SEED);
-    const url = new URL(`http://localhost${path}`);
-    const search = url.searchParams.get('search');
-    const status = url.searchParams.get('status');
-
-    if (currentUser && currentUser.role === 'sales') {
-      leads = leads.filter(l => l.assigned_to === currentUser.id);
-    }
-    if (status) {
-      leads = leads.filter(l => l.status === status);
-    }
-    if (search) {
-      const q = search.toLowerCase();
-      leads = leads.filter(l => 
-        (l.client_name && l.client_name.toLowerCase().includes(q)) ||
-        (l.lead_id && l.lead_id.toLowerCase().includes(q)) ||
-        (l.phone && l.phone.includes(q))
-      );
-    }
-    return {
-      leads,
-      total: leads.length,
-      page: 1,
-      limit: 50,
-    };
-  }
-
-  if (path.startsWith('/leads') && method === 'POST') {
-    const leads = getStore('leads', LEADS_SEED);
+  if (path === '/leads' && method === 'POST') {
+    const nextId = db.leads.length + 1;
     const newLead = {
-      id: Date.now(),
-      lead_id: `DOM-LEAD-${String(leads.length + 1).padStart(4, '0')}`,
+      id: nextId,
+      lead_id: `DOM-LEAD-${String(nextId).padStart(4, '0')}`,
       ...body,
       status: body.status || 'NEW',
-      created_at: new Date().toISOString(),
       created_by: currentUser.id,
+      created_at: new Date().toISOString()
     };
-    leads.unshift(newLead);
-    setStore('leads', leads);
-    return { lead: newLead, message: 'Lead created successfully' };
+    db.leads.unshift(newLead);
+    saveDb(db);
+    return newLead;
   }
 
-  // --- ESCALATIONS ---
-  if (path.startsWith('/escalations')) {
-    const escalations = getStore('escalations', ESCALATIONS_SEED);
-    return { escalations, total: escalations.length };
+  if (path.startsWith('/leads') && method === 'GET') {
+    const url = new URL(`http://localhost${path}`);
+    const status = url.searchParams.get('status');
+    const search = url.searchParams.get('search');
+    let list = [...db.leads];
+    if (status) list = list.filter(l => l.status === status);
+    if (search) {
+      const q = search.toLowerCase();
+      list = list.filter(l => (l.client_name || '').toLowerCase().includes(q) || (l.org_name || '').toLowerCase().includes(q) || (l.phone || '').includes(q));
+    }
+    return list;
   }
 
-  // --- PROJECTS ---
-  if (path.startsWith('/projects/stats')) {
-    const projects = getStore('projects', PROJECTS_SEED);
+  // SINGLE LEAD
+  const leadMatch = path.match(/^\/leads\/(\d+)$/);
+  if (leadMatch) {
+    const id = parseInt(leadMatch[1]);
+    const lead = db.leads.find(l => l.id === id);
+    if (!lead) throw new Error('Lead not found');
+    if (method === 'PUT') {
+      Object.assign(lead, body, { updated_at: new Date().toISOString() });
+      saveDb(db);
+      return lead;
+    }
     return {
-      pending_admin_approval: projects.filter(p => p.status === 'PENDING_ADMIN_APPROVAL').length,
-      available_for_developer: projects.filter(p => p.status === 'AVAILABLE_FOR_DEVELOPER').length,
-      assigned: projects.filter(p => p.status === 'ASSIGNED').length,
-      in_development: projects.filter(p => p.status === 'IN_DEVELOPMENT').length,
-      pending_final_approval: projects.filter(p => p.status === 'PENDING_FINAL_APPROVAL').length,
-      revision_required: projects.filter(p => p.status === 'REVISION_REQUIRED').length,
-      completed: projects.filter(p => p.status === 'COMPLETED').length,
-      total: projects.length,
-      total_revenue: projects.reduce((acc, p) => acc + (p.full_project_amount || 0), 0),
-      total_advance: projects.reduce((acc, p) => acc + (p.advance_amount || 0), 0),
+      ...lead,
+      followups: [
+        { id: 1, lead_id: id, followup_date: '2026-10-25', reason: 'Scheduled follow up call', status: 'PENDING' }
+      ],
+      escalations: []
+    };
+  }
+
+  // PROJECTS
+  if (path.startsWith('/projects/stats')) {
+    return {
+      pending_admin_approval: db.projects.filter(p => p.status === 'PENDING_ADMIN_APPROVAL').length,
+      available_for_developer: db.projects.filter(p => p.status === 'AVAILABLE_FOR_DEVELOPER').length,
+      assigned: db.projects.filter(p => p.status === 'ASSIGNED').length,
+      in_development: db.projects.filter(p => p.status === 'IN_DEVELOPMENT').length,
+      pending_final_approval: db.projects.filter(p => p.status === 'PENDING_FINAL_APPROVAL').length,
+      revision_required: db.projects.filter(p => p.status === 'REVISION_REQUIRED').length,
+      completed: db.projects.filter(p => p.status === 'COMPLETED').length,
+      total: db.projects.length,
+      total_revenue: db.projects.reduce((s, p) => s + (p.full_project_amount || 0), 0),
+      total_advance: db.projects.reduce((s, p) => s + (p.advance_amount || 0), 0),
     };
   }
 
   if (path.startsWith('/projects') && method === 'GET') {
-    let projects = getStore('projects', PROJECTS_SEED);
-    if (currentUser && currentUser.role === 'developer') {
-      projects = projects.filter(p => p.developer_id === currentUser.id || p.status === 'AVAILABLE_FOR_DEVELOPER');
+    const projMatch = path.match(/^\/projects\/(\d+)$/);
+    if (projMatch) {
+      const id = parseInt(projMatch[1]);
+      const project = db.projects.find(p => p.id === id);
+      if (!project) throw new Error('Project not found');
+      return {
+        ...project,
+        messages: db.messages[id] || [
+          { id: 1, sender_id: 1, sender_name: 'Founder Admin', message: 'Project specifications reviewed and verified.', created_at: '2026-09-06T10:00:00.000Z' }
+        ]
+      };
     }
-    return { projects, total: projects.length };
+    return db.projects;
   }
 
-  // --- WALLETS ---
+  // PROJECT ACTIONS
+  const projActionMatch = path.match(/^\/projects\/(\d+)\/(approve|reject|accept|status|submit|final-approve|final-reject|message)$/);
+  if (projActionMatch && method === 'POST') {
+    const id = parseInt(projActionMatch[1]);
+    const action = projActionMatch[2];
+    const project = db.projects.find(p => p.id === id);
+    if (project) {
+      if (action === 'approve') {
+        project.status = 'AVAILABLE_FOR_DEVELOPER';
+        project.developer_payout = body.developer_payout || project.developer_payout || 8000;
+      } else if (action === 'accept') {
+        project.status = 'IN_DEVELOPMENT';
+        project.developer_id = currentUser.id;
+        project.developer_name = currentUser.name;
+      } else if (action === 'status') {
+        project.status = body.status || project.status;
+      } else if (action === 'submit') {
+        project.status = 'PENDING_FINAL_APPROVAL';
+        project.final_website_url = body.final_website_url || project.final_website_url;
+      } else if (action === 'final-approve') {
+        project.status = 'COMPLETED';
+      } else if (action === 'message') {
+        if (!db.messages[id]) db.messages[id] = [];
+        db.messages[id].push({
+          id: Date.now(),
+          sender_id: currentUser.id,
+          sender_name: currentUser.name,
+          message: body.message,
+          created_at: new Date().toISOString()
+        });
+      }
+      saveDb(db);
+      return project;
+    }
+  }
+
+  // USERS
+  if (path.startsWith('/users')) {
+    if (path.includes('/by-role/sales')) {
+      return db.users.filter(u => u.role === 'sales');
+    }
+    if (path.includes('/by-role/developers')) {
+      return db.users.filter(u => u.role === 'developer').map(d => ({
+        ...d,
+        is_available: 1
+      }));
+    }
+    return db.users;
+  }
+
+  // WALLETS
   if (path === '/wallets/me' || path.startsWith('/wallets/')) {
+    const uid = path === '/wallets/me' ? currentUser.id : parseInt(path.split('/')[2]) || currentUser.id;
+    const wallet = db.wallets[uid] || { id: uid, user_id: uid, available_balance: 10000, total_earned: 20000, total_withdrawn: 10000, pending_withdrawal: 0 };
     return {
-      wallet: {
-        id: 1,
-        user_id: currentUser.id,
-        available_balance: 28500,
-        total_earned: 45000,
-        total_withdrawn: 16500,
-        pending_withdrawal: 0,
-      },
+      wallet,
       transactions: [
-        { id: 1, amount: 7500, type: 'CREDIT', description: 'Payout for project DOM-PROJ-0003', created_at: new Date(Date.now() - 86400000 * 2).toISOString() },
-        { id: 2, amount: 10000, type: 'CREDIT', description: 'Commission for project DOM-PROJ-0004', created_at: new Date(Date.now() - 86400000 * 5).toISOString() },
-        { id: 3, amount: 16500, type: 'DEBIT', description: 'Bank Withdrawal to HDFC A/C ***8821', created_at: new Date(Date.now() - 86400000 * 10).toISOString() },
+        { id: 'TXN-000001', amount: 5000, type: 'CREDIT', description: 'Commission payout - DOM-PROJ-0001', created_at: '2026-09-08T10:00:00.000Z' },
+        { id: 'TXN-000002', amount: 2500, type: 'WITHDRAWAL', description: 'Bank transfer', created_at: '2026-09-09T14:30:00.000Z' }
       ]
     };
   }
 
-  // --- NOTIFICATIONS ---
-  if (path.startsWith('/notifications/count')) {
-    return { unreadCount: 2 };
-  }
-  if (path.startsWith('/notifications')) {
-    const notifs = getStore('notifications', NOTIFICATIONS_SEED);
-    return { notifications: notifs, unreadCount: notifs.filter(n => !n.is_read).length };
+  // ESCALATIONS
+  if (path.startsWith('/escalations')) {
+    return db.escalations;
   }
 
-  // --- REPORTS / OVERVIEW ---
-  if (path.startsWith('/reports/overview')) {
-    const leads = getStore('leads', LEADS_SEED);
-    const projects = getStore('projects', PROJECTS_SEED);
-
-    return {
-      leads: {
-        total: leads.length,
-        new: leads.filter(l => l.status === 'NEW').length,
-        follow_up: leads.filter(l => l.status === 'FOLLOW_UP').length,
-        manager_review: leads.filter(l => l.status === 'MANAGER_REVIEW').length,
-        converted: leads.filter(l => l.status === 'CONVERTED').length,
-        lost: leads.filter(l => l.status === 'LOST').length,
-        followups_due_today: 1,
-        followups_overdue: 0,
-      },
-      projects: {
-        pending_admin_approval: projects.filter(p => p.status === 'PENDING_ADMIN_APPROVAL').length,
-        available_for_developer: projects.filter(p => p.status === 'AVAILABLE_FOR_DEVELOPER').length,
-        in_development: projects.filter(p => p.status === 'IN_DEVELOPMENT').length,
-        pending_final_approval: projects.filter(p => p.status === 'PENDING_FINAL_APPROVAL').length,
-        revision_required: 0,
-        completed: 1,
-        total: projects.length,
-      },
-      finance: {
-        total_project_value: 110000,
-        total_advance: 55500,
-        total_developer_payouts: 32500,
-        total_sales_commissions: 18000,
-        total_wallets_balance: 45000,
-        pending_withdrawals: 0,
-        pending_withdrawal_amount: 0,
-      },
-      salesByPerson: [
-        { id: 2, name: 'Rahul Sharma', active_leads: 3, conversions: 2, lost: 0, follow_ups: 1, escalations: 0, revenue_generated: 45000 },
-        { id: 3, name: 'Priya Patel', active_leads: 2, conversions: 1, lost: 0, follow_ups: 0, escalations: 1, revenue_generated: 30000 },
-        { id: 4, name: 'Arjun Singh', active_leads: 1, conversions: 1, lost: 1, follow_ups: 0, escalations: 0, revenue_generated: 35000 },
-      ],
-      developerStats: [
-        { id: 6, name: 'Vikram Dev', is_available: 0, active_project: 'DOM-PROJ-0003' },
-        { id: 7, name: 'Sneha Reddy', is_available: 0, active_project: 'DOM-PROJ-0004' },
-        { id: 8, name: 'Kiran Kumar', is_available: 1, active_project: null },
-      ]
-    };
-  }
-
-  // Generic fallback
-  return { success: true };
+  // DEFAULT FALLBACK
+  return { status: 'ok', success: true };
 }

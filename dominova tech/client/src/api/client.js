@@ -21,10 +21,10 @@ async function request(path, options = {}) {
       body: options.body ? JSON.stringify(options.body) : undefined,
     });
 
-    // If server is not deployed or endpoint is 404 on Vercel, smoothly fallback to mock demo store
-    if (res.status === 404) {
-      console.info(`[Dominova OS] API endpoint ${path} returned 404. Falling back to built-in demo engine.`);
-      return await handleMockRequest(path, options);
+    // If endpoint is missing or method not allowed (e.g. static Vercel host without live backend), fallback to mock data engine
+    if (res.status === 404 || res.status === 405 || res.status >= 502) {
+      console.warn(`[Dominova] API responded with ${res.status} on ${path}. Falling back to client-side data engine.`);
+      return handleMockRequest(path, options);
     }
 
     const data = await res.json().catch(() => ({}));
@@ -33,10 +33,10 @@ async function request(path, options = {}) {
     }
     return data;
   } catch (err) {
-    // If backend server is unreachable (offline / network error), also fallback to mock demo store
-    if (err.message && err.message.includes('fetch') || err.name === 'TypeError') {
-      console.info(`[Dominova OS] Backend offline (${err.message}). Using built-in demo engine.`);
-      return await handleMockRequest(path, options);
+    // If backend server is unreachable (offline/CORS/network failure), fallback to client-side data engine
+    if (!err.message || !err.message.startsWith('Request failed:')) {
+      console.warn(`[Dominova] Network error calling ${path} (${err.message}). Using client-side data engine.`);
+      return handleMockRequest(path, options);
     }
     throw err;
   }
